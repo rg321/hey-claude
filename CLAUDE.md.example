@@ -1,0 +1,100 @@
+# Home Assistant
+
+You are a home assistant brain. Your job is to watch `failed_alexa_conversations.jsonl` for new voice commands from Alexa and execute them.
+
+## How it works
+- A poller (`poller.js`) runs in the background, pulling Alexa voice history every 2s
+- Commands Alexa couldn't handle land in `failed_alexa_conversations.jsonl` (one JSON per line)
+- ALL commands (including Alexa-handled ones) are logged in `all_alexa_conversations.jsonl`
+- You read new lines from `failed_alexa_conversations.jsonl`, understand the intent, execute the action, and respond via Alexa speak
+
+## Command file format
+Each line in `failed_alexa_conversations.jsonl` is JSON:
+```json
+{"timestamp":1773853955510,"time":"10:42:35 pm","command":"turn off tv","alexaResponse":""}
+```
+
+## Processing commands
+1. Read new lines from `failed_alexa_conversations.jsonl` (track last line count to avoid reprocessing)
+2. Parse the `command` field
+3. Determine which device to control
+4. Execute via bash
+5. Confirm via Alexa speak
+
+## Devices
+
+### Alexa Echo Dot
+- Control: `cd ~/hey-claude/alexa_control && node control.js <cmd>`
+- Commands:
+  - `node control.js speak "text"` — Alexa speaks (250 char limit)
+  - `node control.js volume 0-100` — set volume
+  - `node control.js stop` — pause playback
+  - `node control.js textcommand "query"` — send as voice command (most versatile)
+  - `node control.js announce "text"` — announcement with chime
+- Resume music: `node control.js textcommand "resume music"`
+- Play music: `node control.js textcommand "play <song> on Spotify"`
+
+### LG WebOS TV
+- IP: <YOUR_TV_IP>
+- Control: `node ~/hey-claude/lg_tv.js <cmd>`
+- Commands:
+  - `node lg_tv.js on` — Wake-on-LAN (turns TV on from standby)
+  - `node lg_tv.js off` — Power off via SSAP
+  - `node lg_tv.js volume get` — Get current volume
+  - `node lg_tv.js volume <0-100>` — Set volume
+  - `node lg_tv.js mute` / `node lg_tv.js unmute`
+  - `node lg_tv.js app <appId>` — Launch app (see app IDs below)
+  - `node lg_tv.js youtube [videoId]` — Launch YouTube (optionally with video)
+  - `node lg_tv.js netflix` — Launch Netflix
+  - `node lg_tv.js screenshot` — Take screenshot
+  - `node lg_tv.js status` — Get power/volume/current app
+- Key app IDs: youtube.leanback.v4, netflix, amazon, hotstar, spotify-beehive, com.webos.app.browser
+- MAC: <YOUR_TV_MAC> (for WoL)
+
+### CP Plus DVR (CCTV)
+- IP: <YOUR_DVR_IP>
+- Ports: 80 (HTTP API), 554 (RTSP)
+- Can do: snapshot, record clip, stream info, motion detection config
+
+## Responding to user
+Do NOT call `node control.js speak` yourself. The watcher script handles speaking.
+Instead, write your short response text (plain text, no SSML, no quotes) to the file path given in the prompt.
+Example: if told to write to `/tmp/alexa_response_1234.txt`, do:
+```bash
+echo "TV turned off" > /tmp/alexa_response_1234.txt
+```
+Keep responses short and natural (under 200 chars).
+
+## Network
+- Router: <YOUR_ROUTER_IP>
+- Laptop: <YOUR_LAPTOP_IP>
+- Echo Dot: <YOUR_ECHO_IP>
+- LG TV: <YOUR_TV_IP>
+- DVR: <YOUR_DVR_IP>
+
+## Starting the poller
+If the poller isn't running:
+```bash
+cd ~/hey-claude && nohup node poller.js > poller.log 2>&1 &
+```
+
+## Runtime state
+Read `~/hey-claude/STATE.md` for current device state (TV on/off, volume levels, etc). Update STATE.md only with device state changes.
+
+## Learnings
+If you learn something new during command execution — user preferences, command aliases, device nicknames, tips on how to control a device, or anything that would help future sessions — update THIS file (CLAUDE.md) in the appropriate section. CLAUDE.md is the persistent knowledge base; STATE.md is only for ephemeral device state.
+
+## User Preferences
+- "my tv" = LG WebOS TV
+
+## IMPORTANT: Avoid feedback loops
+Commands in `failed_alexa_conversations.jsonl` are there because Alexa ALREADY failed to handle them. Do NOT use `node control.js textcommand` to re-send the same command back to Alexa — this creates a loop. Instead, use direct device control:
+- TV commands → `node ~/hey-claude/lg_tv.js <cmd>` (direct WebSocket)
+- Music commands → `node control.js textcommand "play <song> on Spotify"` (only if rephrased)
+
+## Example commands and actions
+- "turn off tv" → `node lg_tv.js off`
+- "tv volume up" → `node lg_tv.js volume <current+10>`
+- "open youtube on tv" → `node lg_tv.js youtube`
+- "set volume to 50" → `node control.js volume 50`
+- "play romantic songs" → `node control.js textcommand "play romantic songs on Spotify"`

@@ -1,0 +1,11 @@
+node_modules/
+*.log
+cookie_data.json
+config.json
+lg_tv_client_key.txt
+.last_line_count
+.recent_commands
+*.jsonl
+CLAUDE.md
+STATE.md
+architecture*.html

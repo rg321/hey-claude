@@ -1,0 +1,18 @@
+{
+  "tv": {
+    "ip": "YOUR_TV_IP",
+    "mac": "YOUR_TV_MAC",
+    "broadcast": "YOUR_BROADCAST_IP"
+  },
+  "alexa": {
+    "deviceName": "Your Echo Dot",
+    "ip": "YOUR_ECHO_IP"
+  },
+  "dvr": {
+    "ip": "YOUR_DVR_IP"
+  },
+  "network": {
+    "laptop": "YOUR_LAPTOP_IP",
+    "router": "YOUR_ROUTER_IP"
+  }
+}
