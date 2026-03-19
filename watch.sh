@@ -96,12 +96,14 @@ Execute this command now. After executing:
       BEEP_PID=$!
       wait "$CLAUDE_PID"
 
-      # Kill beep loop and its children
-      kill -- -"$BEEP_PID" 2>/dev/null
+      # Kill beep loop, its children (node processes), and flush Alexa audio queue
+      pkill -P "$BEEP_PID" 2>/dev/null
       kill "$BEEP_PID" 2>/dev/null
       wait "$BEEP_PID" 2>/dev/null
+      # Stop any audio still playing/queued on Alexa
+      cd "$HOME/ai/home_assistant/alexa_control" && node control.js stop > /dev/null 2>&1
 
-      # Speak response immediately — no gap
+      # Speak response
       if [ -f "$RESPONSE_FILE" ]; then
         RESPONSE=$(cat "$RESPONSE_FILE")
         rm -f "$RESPONSE_FILE"
