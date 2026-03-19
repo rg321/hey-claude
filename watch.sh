@@ -108,8 +108,11 @@ Execute this command now. After executing:
       else
         RESPONSE="Done"
       fi
-      # Use speak for short responses, announce for long ones (speak limit ~220 chars with SSML)
+      # speak ≤220 chars, announce 221-350, truncate+announce >350
       RESP_LEN=${#RESPONSE}
+      if [ "$RESP_LEN" -gt 350 ]; then
+        RESPONSE=$(echo "$RESPONSE" | cut -c1-350)
+      fi
       if [ "$RESP_LEN" -gt 220 ]; then
         cd "$HOME/ai/home_assistant/alexa_control" && node control.js announce "$RESPONSE" >> "$LOG_FILE" 2>&1
       else
