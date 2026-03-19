@@ -7,7 +7,7 @@ ALL_FILE="$HOME/ai/home_assistant/all_alexa_conversations.jsonl"
 LOG_FILE="$HOME/ai/home_assistant/watch.log"
 LAST_COUNT_FILE="$HOME/ai/home_assistant/.last_line_count"
 RECENT_CMDS_FILE="$HOME/ai/home_assistant/.recent_commands"
-DEDUP_WINDOW=30  # seconds — ignore duplicate commands within this window
+DEDUP_WINDOW=60  # seconds — ignore duplicate commands within this window
 
 # Initialize last count
 if [ ! -f "$LAST_COUNT_FILE" ]; then

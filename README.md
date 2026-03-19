@@ -2,14 +2,11 @@
 
 **When Alexa can't answer, Claude takes over.**
 
-A lightweight AI home assistant that catches failed Alexa commands, routes them to Claude, and executes them — controlling your TV, speakers, cameras, and more. All running locally on an old laptop.
+A lightweight AI home assistant that catches failed Alexa commands, routes them to Claude, and executes them — controlling your TV, speakers, cameras, and more.
+
+![Architecture](architecture.png)
 
 ## How it works
-
-```
-🗣️ User → Alexa (fails) → Poller (detects) → Claude (executes) → Devices
-                    ← response spoken back through Alexa ←
-```
 
 1. You speak a command to Alexa
 2. Alexa can't handle it ("Sorry, I don't know that")
@@ -49,7 +46,7 @@ While Claude is processing, you hear a beep sound so you know it's working.
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/yourusername/hey-claude.git
+git clone https://github.com/rg321/hey-claude.git
 cd hey-claude
 npm install
 cd alexa_control && npm install && cd ..
@@ -119,7 +116,7 @@ Now speak to Alexa. If she can't handle it, Claude will.
 - **CLAUDE.md as memory** — Claude reads it every session, learns across sessions by writing back to it
 - **STATE.md for ephemeral state** — Device power/volume/app tracked separately from persistent knowledge
 - **Failure blacklist in poller** — Only routes genuinely failed commands to Claude; successful Alexa responses are skipped
-- **30s dedup window** — Prevents feedback loops when Claude's actions trigger new Alexa events
+- **60s dedup window** — Prevents feedback loops when Claude's actions trigger new Alexa events
 - **Dynamic response delay** — Waits for Alexa to finish speaking (~20 chars/sec) before Claude responds
 - **Processing beeps** — Audio feedback while Claude is working so you know it's alive
 
@@ -128,6 +125,10 @@ Now speak to Alexa. If she can't handle it, Claude will.
 1. Create a control script (like `lg_tv.js`)
 2. Add the device details to your `CLAUDE.md` — commands, IP, protocol
 3. Claude will automatically use it for relevant commands
+
+## Contributing
+
+Contributions are welcome! Feel free to open issues or submit PRs — whether it's adding support for new devices, improving the failure detection, or making the pipeline faster.
 
 ## License
 
