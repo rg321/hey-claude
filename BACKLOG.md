@@ -12,6 +12,12 @@ Open features and improvements. PRs welcome!
 - [ ] **Punjabi/Hindi TTS** — Support regional language responses (currently English only, even for Hindi/Punjabi commands)
 - [ ] **Smarter processing sound** — Replace beep loop with a single looping audio clip to avoid the per-beep API call overhead
 
+## CCTV
+- [ ] **Multi-channel view** — Show multiple camera channels on TV simultaneously (grid layout)
+- [ ] **Channel switching via voice** — "Switch to camera 2" without restarting the stream
+- [ ] **Motion-triggered casting** — Auto-cast to TV when DVR detects motion
+- [ ] **CCTV as a reusable skill** — Package cctv_stream.sh as a portable skill/plugin usable with any coding assistant
+
 ## Device Support
 - [ ] **Smart lights** — Integrate Philips Hue, LIFX, Tuya, or other smart bulbs
 - [ ] **Smart plugs** — Control power outlets (fans, appliances)

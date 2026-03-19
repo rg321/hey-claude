@@ -9,7 +9,9 @@
     "ip": "YOUR_ECHO_IP"
   },
   "dvr": {
-    "ip": "YOUR_DVR_IP"
+    "ip": "YOUR_DVR_IP",
+    "user": "YOUR_DVR_USER",
+    "pass": "YOUR_DVR_PASS"
   },
   "network": {
     "laptop": "YOUR_LAPTOP_IP",

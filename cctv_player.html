@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin: 0; padding: 0; }
+  body { background: #000; overflow: hidden; }
+  video {
+    width: 100vw;
+    height: 100vh;
+    object-fit: contain;
+  }
+</style>
+</head>
+<body>
+<video id="v" autoplay muted playsinline></video>
+<script>
+  var v = document.getElementById('v');
+  // Try native HLS first (WebOS supports it)
+  v.src = 'stream.m3u8';
+  v.play();
+  // Auto fullscreen
+  v.addEventListener('playing', function() {
+    try { v.requestFullscreen || v.webkitRequestFullscreen && v.webkitRequestFullscreen(); } catch(e) {}
+  });
+</script>
+</body>
+</html>
