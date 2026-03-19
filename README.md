@@ -24,6 +24,7 @@ While Claude is processing, you hear a beep sound so you know it's working.
 - **Claude sessions** — One Haiku session per command, reads `CLAUDE.md` for context, executes via bash
 - **LG TV control** (`lg_tv.js`) — Direct WebSocket (SSAP) control: power, volume, apps, screenshots
 - **Alexa control** (`alexa_control/`) — Speak, volume, text commands, announcements
+- **CCTV streaming** (`cctv_stream.sh`) — Live camera feed on TV: DVR (RTSP) → ffmpeg (HLS) → TV browser
 
 ## Supported devices
 
@@ -31,8 +32,10 @@ While Claude is processing, you hear a beep sound so you know it's working.
 |--------|----------|----------------|
 | **LG WebOS TV** | WebSocket (SSAP) | Power on/off, volume, launch apps (YouTube, Netflix, Spotify), screenshots |
 | **Alexa Echo Dot** | alexa-remote2 | Speak, play music, text commands, announcements |
-| **CP Plus DVR** | HTTP + RTSP | Snapshots, stream to TV, motion detection |
+| **CP Plus DVR** | RTSP → HLS | Live camera feed on TV, snapshots, motion detection |
 | **Smart Lights** | — | Planned |
+
+> **CCTV on TV** — Say "show camera on TV" and it spins up a live feed: DVR → ffmpeg (HLS) → fullscreen TV browser. Auto-stops when you switch away.
 
 ## Setup
 
