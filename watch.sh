@@ -108,6 +108,8 @@ Execute this command now. After executing:
       else
         RESPONSE="Done"
       fi
+      # Truncate to 220 chars (Alexa 250 limit minus SSML wrapper)
+      RESPONSE=$(echo "$RESPONSE" | cut -c1-220)
       cd "$HOME/ai/home_assistant/alexa_control" && node control.js speak "<voice name=\"Matthew\">$RESPONSE</voice>" >> "$LOG_FILE" 2>&1
 
       echo "[$(date)] Finished: $COMMAND" >> "$LOG_FILE"
