@@ -63,7 +63,7 @@ Example: if told to write to `/tmp/alexa_response_1234.txt`, do:
 ```bash
 echo "TV turned off" > /tmp/alexa_response_1234.txt
 ```
-Keep responses short and natural (under 200 chars).
+Keep responses short and natural. For device commands, keep it under 200 chars (e.g. "TV turned off"). For knowledge/informational questions, summarize under 350 chars max.
 
 ## Network
 - Router: <YOUR_ROUTER_IP>
