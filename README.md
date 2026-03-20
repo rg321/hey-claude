@@ -6,6 +6,16 @@ A lightweight AI home assistant that catches failed Alexa commands, routes them 
 
 ![Architecture](architecture.png)
 
+## Key design decisions
+
+- **One Claude session per command** — Fast, cheap (Haiku), no long-running process
+- **CLAUDE.md as memory** — Claude reads it every session, learns across sessions by writing back to it
+- **Plug-and-play devices** — Drop a folder in `devices/`, write a `device.md`, and Claude auto-discovers it
+- **Failure blacklist in poller** — Only routes genuinely failed commands to Claude; successful Alexa responses are skipped
+- **60s dedup window** — Prevents feedback loops when Claude's actions trigger new Alexa events
+- **Dynamic response delay** — Waits for Alexa to finish speaking (~20 chars/sec) before Claude responds
+- **Processing beeps** — Audio feedback while Claude is working so you know it's alive
+
 ## How it works
 
 1. You speak a command to Alexa
@@ -117,16 +127,6 @@ Now speak to Alexa. If she can't handle it, Claude will.
 ├── STATE.md                   # Device state (gitignored)
 └── README.md
 ```
-
-## Key design decisions
-
-- **One Claude session per command** — Fast, cheap (Haiku), no long-running process
-- **CLAUDE.md as memory** — Claude reads it every session, learns across sessions by writing back to it
-- **STATE.md for ephemeral state** — Device power/volume/app tracked separately from persistent knowledge
-- **Failure blacklist in poller** — Only routes genuinely failed commands to Claude; successful Alexa responses are skipped
-- **60s dedup window** — Prevents feedback loops when Claude's actions trigger new Alexa events
-- **Dynamic response delay** — Waits for Alexa to finish speaking (~20 chars/sec) before Claude responds
-- **Processing beeps** — Audio feedback while Claude is working so you know it's alive
 
 ## Adding new devices
 
