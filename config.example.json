@@ -14,6 +14,10 @@
     "user": "YOUR_DVR_USER",
     "pass": "YOUR_DVR_PASS"
   },
+  "stb": {
+    "ip": "YOUR_STB_IP",
+    "mac": "YOUR_STB_MAC"
+  },
   "network": {
     "laptop": "YOUR_LAPTOP_IP",
     "router": "YOUR_ROUTER_IP"
