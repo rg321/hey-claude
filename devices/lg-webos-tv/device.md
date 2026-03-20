@@ -1,16 +1,20 @@
 ### LG WebOS TV
 - Control: `node devices/lg-webos-tv/lg_tv.js <cmd>`
 - Commands:
-  - `node devices/lg-webos-tv/lg_tv.js on` — Wake-on-LAN (turns TV on from standby)
-  - `node devices/lg-webos-tv/lg_tv.js off` — Power off via SSAP
-  - `node devices/lg-webos-tv/lg_tv.js volume get` — Get current volume
-  - `node devices/lg-webos-tv/lg_tv.js volume <0-100>` — Set volume
-  - `node devices/lg-webos-tv/lg_tv.js mute` / `unmute`
-  - `node devices/lg-webos-tv/lg_tv.js app <appId>` — Launch app
-  - `node devices/lg-webos-tv/lg_tv.js youtube [videoId]` — Launch YouTube
-  - `node devices/lg-webos-tv/lg_tv.js netflix` — Launch Netflix
-  - `node devices/lg-webos-tv/lg_tv.js screenshot` — Take screenshot
-  - `node devices/lg-webos-tv/lg_tv.js status` — Get power/volume/current app
-- Key app IDs: youtube.leanback.v4, netflix, amazon, hotstar, spotify-beehive, com.webos.app.browser, com.viacom18.media.ondemand (JioCinema)
+  - `on` — Wake-on-LAN (turns TV on from standby)
+  - `off` — Power off via SSAP
+  - `volume get` — Get current volume
+  - `volume <0-100>` — Set volume
+  - `mute` / `unmute`
+  - `app <appId>` — Launch app (see IDs below)
+  - `youtube [videoId]` — Launch YouTube, optionally with specific video
+  - `netflix` — Launch Netflix
+  - `screenshot` — Take screenshot (returns HTTPS JPG URL)
+  - `status` — Get power/volume/current app
+  - `screen-off` — Turn off backlight only (TV stays on)
+  - `screen-on` — Turn backlight back on
+  - `open <url>` — Open URL in TV browser
+- Key app IDs: youtube.leanback.v4, netflix, amazon, hotstar, spotify-beehive, com.webos.app.browser, com.viacom18.media.ondemand (JioCinema), com.webos.app.photovideo
+- YouTube with specific video: `youtube VIDEO_ID`
 - TV config (IP, MAC) is in config.json under `tv`
 - Client key auto-saved on first pairing to lg_tv_client_key.txt

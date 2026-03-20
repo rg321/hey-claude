@@ -119,7 +119,7 @@ async function main() {
 
   if (!cmd) {
     console.log('Usage: node lg_tv.js <command> [args]');
-    console.log('Commands: on, off, volume [get|N], mute, unmute, app <appId>, youtube [videoId], screenshot, status');
+    console.log('Commands: on, off, volume [get|N], mute, unmute, app <appId>, youtube [videoId], netflix, screenshot, status, screen-off, screen-on, open <url>');
     process.exit(0);
   }
 
@@ -202,6 +202,24 @@ async function main() {
         const vol = await tv.send('ssap://audio/getVolume');
         const app = await tv.send('ssap://com.webos.applicationManager/getForegroundAppInfo');
         console.log(JSON.stringify({ power: power.state || 'Active', volume: vol.volume, muted: vol.muted, app: app.appId }, null, 2));
+        break;
+      }
+
+      case 'screen-off':
+        await tv.send('ssap://com.webos.service.tvpower/power/turnOffScreen');
+        console.log('Screen off (backlight disabled)');
+        break;
+
+      case 'screen-on':
+        await tv.send('ssap://com.webos.service.tvpower/power/turnOnScreen');
+        console.log('Screen on (backlight enabled)');
+        break;
+
+      case 'open': {
+        const url = args[0];
+        if (!url) { console.log('Usage: node lg_tv.js open <url>'); break; }
+        await tv.send('ssap://system.launcher/open', { target: url });
+        console.log(`Opened ${url}`);
         break;
       }
 
