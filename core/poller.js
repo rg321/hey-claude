@@ -1,11 +1,12 @@
-const Alexa = require('alexa-remote2');
 const fs = require('fs');
 const path = require('path');
+const Alexa = require(path.join(__dirname, 'alexa', 'node_modules', 'alexa-remote2'));
 
+const ROOT_DIR = path.join(__dirname, '..');
 const alexa = new Alexa();
-const saved = JSON.parse(fs.readFileSync(path.join(__dirname, 'cookie_data.json'), 'utf8'));
-const QUEUE_FILE = path.join(__dirname, 'failed_alexa_conversations.jsonl');
-const LOG_FILE = path.join(__dirname, 'all_alexa_conversations.jsonl');
+const saved = JSON.parse(fs.readFileSync(path.join(__dirname, 'alexa', 'cookie_data.json'), 'utf8'));
+const QUEUE_FILE = path.join(ROOT_DIR, 'failed_alexa_conversations.jsonl');
+const LOG_FILE = path.join(ROOT_DIR, 'all_alexa_conversations.jsonl');
 
 let lastTimestamp = Date.now();
 

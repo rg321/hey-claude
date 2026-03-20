@@ -51,14 +51,13 @@ While Claude is processing, you hear a beep sound so you know it's working.
 ```bash
 git clone https://github.com/rg321/hey-claude.git
 cd hey-claude
-npm install
-cd alexa_control && npm install && cd ..
+cd core/alexa && npm install && cd ../..
 ```
 
 ### 2. Authenticate with Alexa
 
 ```bash
-cd alexa_control
+cd core/alexa
 node auth.js
 # Opens a browser — log in with your Amazon account
 # Saves cookie_data.json (gitignored)
@@ -78,20 +77,16 @@ Edit `config.json` with your device IPs, MAC addresses, and network details. Thi
 cp CLAUDE.md.example CLAUDE.md
 ```
 
-Edit `CLAUDE.md` with your device details, Alexa device name, and user preferences. This is read by every Claude session — it's the persistent knowledge base.
+Add your personal preferences (language, device nicknames, aliases). Device instructions are auto-loaded from `devices/*/device.md` — no need to add them here.
 
-### 5. Pair LG TV (if applicable)
-
-On first run, the TV will show a pairing prompt — accept it. The client key is saved automatically.
-
-### 6. Start
+### 5. Start
 
 ```bash
 # Start the poller (watches Alexa voice history)
-nohup node poller.js > poller.log 2>&1 &
+nohup node core/poller.js > poller.log 2>&1 &
 
 # Start the watcher (spawns Claude sessions for failed commands)
-nohup bash watch.sh > /dev/null 2>&1 &
+nohup bash core/watch.sh > /dev/null 2>&1 &
 ```
 
 Now speak to Alexa. If she can't handle it, Claude will.
@@ -99,18 +94,28 @@ Now speak to Alexa. If she can't handle it, Claude will.
 ## File structure
 
 ```
-├── poller.js             # Polls Alexa voice history, filters failures
-├── watch.sh              # Watches for new commands, spawns Claude sessions
-├── lg_tv.js              # LG WebOS TV control via SSAP WebSocket
-├── config.json           # Your device IPs, MACs, network (gitignored)
-├── config.example.json   # Template config
-├── CLAUDE.md             # Persistent knowledge for Claude (gitignored)
-├── CLAUDE.md.example     # Template knowledge base
-├── STATE.md              # Ephemeral device state (gitignored)
-├── alexa_control/
-│   ├── auth.js           # Alexa authentication (generates cookie_data.json)
-│   ├── control.js        # Alexa commands (speak, volume, textcommand)
-│   └── ...
+├── core/
+│   ├── poller.js             # Polls Alexa voice history, filters failures
+│   ├── watch.sh              # Watches for commands, spawns Claude, auto-loads device docs
+│   └── alexa/                # Alexa voice interface
+│       ├── auth.js           # Authentication (generates cookie_data.json)
+│       └── control.js        # speak, announce, textcommand, volume
+│
+├── devices/                   # Plug-and-play device integrations
+│   ├── lg-webos-tv/
+│   │   ├── lg_tv.js          # WebSocket (SSAP) control
+│   │   └── device.md         # Instructions for Claude (auto-included)
+│   ├── cpplus-dvr/
+│   │   ├── stream.sh         # RTSP → HLS → TV browser
+│   │   ├── player.html       # Fullscreen video player
+│   │   └── device.md         # Instructions for Claude (auto-included)
+│
+├── config.json                # Your device IPs, MACs, network (gitignored)
+├── config.example.json        # Template
+├── CLAUDE.md                  # Your preferences + learnings (gitignored)
+├── CLAUDE.md.example          # Template
+├── STATE.md                   # Device state (gitignored)
+└── README.md
 ```
 
 ## Key design decisions
@@ -125,9 +130,11 @@ Now speak to Alexa. If she can't handle it, Claude will.
 
 ## Adding new devices
 
-1. Create a control script (like `lg_tv.js`)
-2. Add the device details to your `CLAUDE.md` — commands, IP, protocol
-3. Claude will automatically use it for relevant commands
+1. Create a folder under `devices/` (e.g. `devices/philips-hue/`)
+2. Add your control script (e.g. `index.js` or `control.sh`)
+3. Write a `device.md` describing the commands Claude can use
+4. Add device config to `config.json`
+5. Done — `watch.sh` auto-includes your `device.md` in every Claude session
 
 ## Contributing
 

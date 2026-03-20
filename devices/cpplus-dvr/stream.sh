@@ -46,9 +46,10 @@ discover_dvr() {
     return 0
   fi
   # Last resort: scan subnet for RTSP
-  log "DVR not found by MAC or config IP, scanning subnet..."
+  SUBNET=$(echo "$DVR_IP_CONFIG" | sed 's/\.[0-9]*$//')
+  log "DVR not found by MAC or config IP, scanning $SUBNET.x..."
   for i in $(seq 1 254); do
-    IP="192.168.29.$i"
+    IP="$SUBNET.$i"
     if nc -z -w 1 "$IP" 554 2>/dev/null; then
       DVR_IP="$IP"
       log "DVR found at $IP via subnet scan"
@@ -98,7 +99,7 @@ start_stream() {
   rm -rf "$HLS_DIR"
   mkdir -p "$HLS_DIR"
   # Copy fullscreen player HTML
-  cp "$HOME_DIR/cctv_player.html" "$HLS_DIR/index.html"
+  cp "$HOME_DIR/devices/cpplus-dvr/player.html" "$HLS_DIR/index.html"
 
   RTSP_URL="rtsp://${DVR_USER}:${DVR_PASS}@${DVR_IP}:554/cam/realmonitor?channel=${CHANNEL}&subtype=${SUBTYPE}"
 
@@ -192,7 +193,7 @@ start_watchdog() {
       fi
 
       # Check TV status
-      TV_STATUS=$(cd "$HOME_DIR" && node lg_tv.js status 2>/dev/null || echo '{"app":"unknown"}')
+      TV_STATUS=$(cd "$HOME_DIR" && node devices/lg-webos-tv/lg_tv.js status 2>/dev/null || echo '{"app":"unknown"}')
       CURRENT_APP=$(echo "$TV_STATUS" | jq -r '.app // "unknown"' 2>/dev/null)
 
       if [ "$CURRENT_APP" = "com.webos.app.browser" ]; then
@@ -208,7 +209,7 @@ start_watchdog() {
           AWAY_SINCE=$(date +%s)
           log "Watchdog: TV switched to $CURRENT_APP, starting ${GRACE_PERIOD}s grace period"
           # Notify user
-          cd "$HOME_DIR/alexa_control" && node control.js speak '<voice name="Matthew">Camera stream is still running. Say stop camera to end it.</voice>' > /dev/null 2>&1
+          cd "$HOME_DIR/core/alexa" && node control.js speak '<voice name="Matthew">Camera stream is still running. Say stop camera to end it.</voice>' > /dev/null 2>&1
         else
           # Check if grace period expired
           NOW=$(date +%s)
@@ -216,7 +217,7 @@ start_watchdog() {
           if [ "$ELAPSED" -ge "$GRACE_PERIOD" ]; then
             log "Watchdog: grace period expired (${ELAPSED}s), stopping stream"
             stop_stream
-            cd "$HOME_DIR/alexa_control" && node control.js speak '<voice name="Matthew">Camera stream stopped after 30 minutes of inactivity.</voice>' > /dev/null 2>&1
+            cd "$HOME_DIR/core/alexa" && node control.js speak '<voice name="Matthew">Camera stream stopped after 30 minutes of inactivity.</voice>' > /dev/null 2>&1
             break
           fi
         fi
@@ -229,10 +230,10 @@ start_watchdog() {
 
 cast_to_tv() {
   # Check TV is on
-  TV_STATUS=$(cd "$HOME_DIR" && node lg_tv.js status 2>&1) || true
+  TV_STATUS=$(cd "$HOME_DIR" && node devices/lg-webos-tv/lg_tv.js status 2>&1) || true
   if echo "$TV_STATUS" | grep -qi "error\|timeout"; then
     # Try to turn on TV
-    cd "$HOME_DIR" && node lg_tv.js on
+    cd "$HOME_DIR" && node devices/lg-webos-tv/lg_tv.js on
     echo "Sent WoL to TV, waiting 8s for boot..."
     sleep 8
   fi

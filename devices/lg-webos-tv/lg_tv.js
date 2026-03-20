@@ -8,12 +8,13 @@ const fs = require('fs');
 const path = require('path');
 const dgram = require('dgram');
 
-const config = JSON.parse(fs.readFileSync(path.join(__dirname, 'config.json'), 'utf8'));
+const ROOT_DIR = path.join(__dirname, '..', '..');
+const config = JSON.parse(fs.readFileSync(path.join(ROOT_DIR, 'config.json'), 'utf8'));
 const TV_IP = config.tv.ip;
 const TV_WS = `wss://${TV_IP}:3001`;
 const TV_MAC = config.tv.mac;
 const BROADCAST = config.tv.broadcast;
-const CLIENT_KEY_FILE = path.join(__dirname, 'lg_tv_client_key.txt');
+const CLIENT_KEY_FILE = path.join(ROOT_DIR, 'lg_tv_client_key.txt');
 
 function getClientKey() {
   try { return fs.readFileSync(CLIENT_KEY_FILE, 'utf8').trim(); } catch {}

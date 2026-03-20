@@ -2,7 +2,7 @@ const Alexa = require('alexa-remote2');
 const fs = require('fs');
 const path = require('path');
 
-const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'config.json'), 'utf8'));
+const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'config.json'), 'utf8'));
 const LAPTOP_IP = config.network.laptop;
 const COOKIE_FILE = path.join(__dirname, 'cookie_data.json');
 const alexa = new Alexa();

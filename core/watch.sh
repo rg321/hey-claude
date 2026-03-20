@@ -1,12 +1,15 @@
 #!/bin/bash
 # Watches failed_alexa_conversations.jsonl for new commands
 # Spawns a claude session per command for intelligent processing
+# Auto-includes device docs from devices/*/device.md
 
-FAILED_FILE="$HOME/ai/home_assistant/failed_alexa_conversations.jsonl"
-ALL_FILE="$HOME/ai/home_assistant/all_alexa_conversations.jsonl"
-LOG_FILE="$HOME/ai/home_assistant/watch.log"
-LAST_COUNT_FILE="$HOME/ai/home_assistant/.last_line_count"
-RECENT_CMDS_FILE="$HOME/ai/home_assistant/.recent_commands"
+ROOT_DIR="$HOME/ai/home_assistant"
+FAILED_FILE="$ROOT_DIR/failed_alexa_conversations.jsonl"
+ALL_FILE="$ROOT_DIR/all_alexa_conversations.jsonl"
+LOG_FILE="$ROOT_DIR/watch.log"
+LAST_COUNT_FILE="$ROOT_DIR/.last_line_count"
+RECENT_CMDS_FILE="$ROOT_DIR/.recent_commands"
+ALEXA_DIR="$ROOT_DIR/core/alexa"
 DEDUP_WINDOW=60  # seconds — ignore duplicate commands within this window
 
 # Initialize last count
@@ -54,7 +57,7 @@ while true; do
 
       echo "[$(date)] Processing: $COMMAND" >> "$LOG_FILE"
 
-      # Wait for Alexa to finish speaking her failure response (~17 chars/sec)
+      # Wait for Alexa to finish speaking her failure response (~20 chars/sec)
       if [ -n "$ALEXA_RESP" ] && [ "$ALEXA_RESP" != "" ]; then
         RESP_LEN=${#ALEXA_RESP}
         WAIT_SECS=$(( (RESP_LEN / 20) + 1 ))
@@ -63,14 +66,26 @@ while true; do
       fi
 
       # Acknowledgment via Alexa in Matthew's voice
-      cd "$HOME/ai/home_assistant/alexa_control" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
+      cd "$ALEXA_DIR" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
 
       # Get recent conversation context (last 5 lines from all conversations)
       RECENT=$(tail -5 "$ALL_FILE" 2>/dev/null | jq -r '.command' 2>/dev/null | tr '\n' ', ')
 
+      # Auto-assemble device docs from devices/*/device.md
+      DEVICE_DOCS=$(cat "$ROOT_DIR"/devices/*/device.md 2>/dev/null)
+
       # Build the prompt for claude
       RESPONSE_FILE="/tmp/alexa_response_$$.txt"
       PROMPT="You are processing a voice command from Alexa in real-time.
+
+## Available Devices
+$DEVICE_DOCS
+
+## Alexa (voice interface)
+- Speak: cd $ALEXA_DIR && node control.js speak \"text\"
+- Text command: cd $ALEXA_DIR && node control.js textcommand \"query\"
+- Volume: cd $ALEXA_DIR && node control.js volume 0-100
+- Stop: cd $ALEXA_DIR && node control.js stop
 
 Recent commands for context: $RECENT
 
@@ -83,14 +98,14 @@ Execute this command now. After executing:
 - Do NOT speak via Alexa yourself. Instead write ONLY the short response text (no SSML, no quotes) to $RESPONSE_FILE"
 
       # Spawn claude in background, beep while processing
-      cd "$HOME/ai/home_assistant" && claude -p "$PROMPT" --model haiku --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
+      cd "$ROOT_DIR" && claude -p "$PROMPT" --model haiku --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
       CLAUDE_PID=$!
 
       # Beep in background
       (
         while true; do
           sleep 0.3
-          cd "$HOME/ai/home_assistant/alexa_control" && node control.js speak '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>' > /dev/null 2>&1 && echo "[$(date)] beep" >> "$HOME/ai/home_assistant/watch.log"
+          cd "$ALEXA_DIR" && node control.js speak '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>' > /dev/null 2>&1 && echo "[$(date)] beep" >> "$LOG_FILE"
         done
       ) &
       BEEP_PID=$!
@@ -101,7 +116,7 @@ Execute this command now. After executing:
       kill "$BEEP_PID" 2>/dev/null
       wait "$BEEP_PID" 2>/dev/null
       # Stop any audio still playing/queued on Alexa
-      cd "$HOME/ai/home_assistant/alexa_control" && node control.js stop > /dev/null 2>&1
+      cd "$ALEXA_DIR" && node control.js stop > /dev/null 2>&1
 
       # Speak response
       if [ -f "$RESPONSE_FILE" ]; then
@@ -116,9 +131,9 @@ Execute this command now. After executing:
         RESPONSE=$(echo "$RESPONSE" | cut -c1-350)
       fi
       if [ "$RESP_LEN" -gt 220 ]; then
-        cd "$HOME/ai/home_assistant/alexa_control" && node control.js announce "$RESPONSE" >> "$LOG_FILE" 2>&1
+        cd "$ALEXA_DIR" && node control.js announce "$RESPONSE" >> "$LOG_FILE" 2>&1
       else
-        cd "$HOME/ai/home_assistant/alexa_control" && node control.js speak "<voice name=\"Matthew\">$RESPONSE</voice>" >> "$LOG_FILE" 2>&1
+        cd "$ALEXA_DIR" && node control.js speak "<voice name=\"Matthew\">$RESPONSE</voice>" >> "$LOG_FILE" 2>&1
       fi
 
       echo "[$(date)] Finished: $COMMAND" >> "$LOG_FILE"
