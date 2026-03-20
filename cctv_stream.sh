@@ -14,13 +14,50 @@ WATCHDOG_PID_FILE="/tmp/cctv_watchdog.pid"
 HLS_DIR="/tmp/cctv_hls"
 
 # Read config
-DVR_IP=$(jq -r '.dvr.ip' "$CONFIG")
+DVR_IP_CONFIG=$(jq -r '.dvr.ip' "$CONFIG")
+DVR_MAC=$(jq -r '.dvr.mac // ""' "$CONFIG")
 DVR_USER=$(jq -r '.dvr.user' "$CONFIG")
 DVR_PASS=$(jq -r '.dvr.pass' "$CONFIG")
 TV_IP=$(jq -r '.tv.ip' "$CONFIG")
 LAPTOP_IP=$(jq -r '.network.laptop' "$CONFIG")
 HTTP_PORT=8899
 GRACE_PERIOD=1800  # 30 minutes in seconds
+
+# Discover DVR IP by MAC address (handles DHCP changes after power restart)
+discover_dvr() {
+  if [ -n "$DVR_MAC" ]; then
+    # Ping broadcast to populate ARP table
+    ping -c 1 -t 1 "$(jq -r '.tv.broadcast' "$CONFIG")" > /dev/null 2>&1 || true
+    # Look up MAC in ARP table
+    FOUND_IP=$(arp -a 2>/dev/null | grep -i "$DVR_MAC" | grep -oE '([0-9]{1,3}\.){3}[0-9]{1,3}' | head -1)
+    if [ -n "$FOUND_IP" ]; then
+      DVR_IP="$FOUND_IP"
+      # Update config if IP changed
+      if [ "$FOUND_IP" != "$DVR_IP_CONFIG" ]; then
+        log "DVR IP changed: $DVR_IP_CONFIG → $FOUND_IP (updating config.json)"
+        jq --arg ip "$FOUND_IP" '.dvr.ip = $ip' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
+      fi
+      return 0
+    fi
+  fi
+  # Fallback: try config IP
+  DVR_IP="$DVR_IP_CONFIG"
+  if nc -z -w 2 "$DVR_IP" 554 2>/dev/null; then
+    return 0
+  fi
+  # Last resort: scan subnet for RTSP
+  log "DVR not found by MAC or config IP, scanning subnet..."
+  for i in $(seq 1 254); do
+    IP="192.168.29.$i"
+    if nc -z -w 1 "$IP" 554 2>/dev/null; then
+      DVR_IP="$IP"
+      log "DVR found at $IP via subnet scan"
+      jq --arg ip "$IP" '.dvr.ip = $ip' "$CONFIG" > "$CONFIG.tmp" && mv "$CONFIG.tmp" "$CONFIG"
+      return 0
+    fi
+  done
+  return 1
+}
 
 CMD="${1:-status}"
 CHANNEL="${2:-1}"
@@ -44,7 +81,14 @@ start_stream() {
     return 0
   fi
 
-  # Check DVR reachable
+  # Discover DVR IP (handles DHCP changes)
+  if ! discover_dvr; then
+    echo "Error: DVR not found on network"
+    return 1
+  fi
+  log "Using DVR at $DVR_IP"
+
+  # Verify RTSP reachable
   if ! nc -z -w 2 "$DVR_IP" 554 2>/dev/null; then
     echo "Error: DVR not reachable at $DVR_IP:554"
     return 1

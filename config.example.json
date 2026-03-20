@@ -10,6 +10,7 @@
   },
   "dvr": {
     "ip": "YOUR_DVR_IP",
+    "mac": "YOUR_DVR_MAC",
     "user": "YOUR_DVR_USER",
     "pass": "YOUR_DVR_PASS"
   },
