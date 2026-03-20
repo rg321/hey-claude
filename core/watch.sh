@@ -98,7 +98,7 @@ Execute this command now. After executing:
 - Do NOT speak via Alexa yourself. Instead write ONLY the short response text (no SSML, no quotes) to $RESPONSE_FILE"
 
       # Spawn claude in background, beep while processing
-      cd "$ROOT_DIR" && claude -p "$PROMPT" --model haiku --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
+      cd "$ROOT_DIR" && claude -p "$PROMPT" --model claude-haiku-4-5-20251001 --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
       CLAUDE_PID=$!
 
       # Beep in background
