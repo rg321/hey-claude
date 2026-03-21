@@ -49,10 +49,19 @@ alexa.init({
                     "to control a video device", "you need to connect",
                     "i can not", "i cannot", "i'm unable",
                     "go to the alexa app", "manage your video skills",
-                    "enabled video skills"
+                    "enabled video skills", "what are you looking for",
+                    "i'm not sure what went wrong"
                 ];
+                // Alexa tried a music service and failed — don't retry, it won't help
+                const alexaTriedPatterns = [
+                    "i can't find the song", "i can't find songs by",
+                    "i can't find the album", "i can't find the playlist",
+                    "i can't find that on spotify", "i can't find that on amazon",
+                    "i didn't find anything called"
+                ];
+                const alexaTried = alexaTriedPatterns.some(p => respLower.includes(p));
                 const isFailure = !resp || failurePatterns.some(p => respLower.includes(p));
-                if (resp && !isFailure) {
+                if (alexaTried || (resp && !isFailure)) {
                     console.log(`[${logEntry.time}] ALEXA> ${user} → ${resp.substring(0, 60)}`);
                     continue;
                 }

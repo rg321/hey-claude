@@ -31,6 +31,10 @@ Open features and improvements. PRs welcome!
 - [ ] **Scheduled commands** — "Turn off TV in 30 minutes", "Play bhajans at 6am every day"
 - [ ] **Learning from corrections** — If user says "no, I meant the bedroom TV", learn the preference
 
+## Feedback Loop Prevention
+- [ ] **Intent-based dedup** — Current dedup matches exact strings only. "play mata bhajan" and "play mata by narendra chanchal" are different strings but same intent. Detect semantic duplicates to prevent retry loops.
+- [ ] **Track outbound textcommands** — Write each `textcommand` Claude sends to a log file. If the poller sees a failed command matching a recently-sent textcommand, skip it instead of re-queuing.
+
 ## Architecture
 - [ ] **Local LLM support** — Use Ollama with models like qwen3-coder for zero API cost
 - [ ] **Faster polling** — Replace 2s Alexa history polling with a push-based approach (WebSocket/MQTT from Alexa)
