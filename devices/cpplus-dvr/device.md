@@ -11,7 +11,8 @@
 - Auto-stops 30 min after TV switches away from browser
 - DVR config (IP, MAC, credentials) is in config.json under `dvr`
 
-#### CCTV Routing
+#### CCTV Routing — IMPORTANT
 - "cctv on tv" / "cctv on my tv" / "cctv on mom's tv" → `bash devices/cpplus-dvr/stream.sh cast`
 - "cctv on dad's tv" / "cctv on papa's tv" → `bash devices/jio-stb/cast.sh cctv`
 - "stop cctv" / "stop camera" → `bash devices/cpplus-dvr/stream.sh stop`
+- When casting to dad's TV, do NOT also call `stream.sh cast` — that opens on LG TV (mom's TV). Only call `cast.sh cctv` which handles ffmpeg + DLNA internally.
