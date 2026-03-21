@@ -16,6 +16,38 @@ A lightweight AI home assistant that catches failed Alexa commands, routes them 
 - **Dynamic response delay** — Waits for Alexa to finish speaking (~20 chars/sec) before Claude responds
 - **Processing beeps** — Audio feedback while Claude is working so you know it's alive
 
+## File structure
+
+```
+├── core/
+│   ├── poller.js             # Polls Alexa voice history, filters failures
+│   ├── watch.sh              # Watches for commands, spawns Claude, auto-loads device docs
+│   └── alexa/                # Alexa voice interface
+│       ├── auth.js           # Authentication (generates cookie_data.json)
+│       └── control.js        # speak, announce, textcommand, volume
+│
+├── devices/                   # Plug-and-play device integrations
+│   ├── lg-webos-tv/
+│   │   ├── lg_tv.js          # WebSocket (SSAP) control
+│   │   └── device.md         # Instructions for Claude (auto-included)
+│   ├── cpplus-dvr/
+│   │   ├── stream.sh         # RTSP → HLS → TV browser
+│   │   ├── dvr.sh            # Snapshot, record, motion detection
+│   │   ├── player.html       # Fullscreen video player
+│   │   └── device.md         # Instructions for Claude (auto-included)
+│   ├── jio-stb/
+│   │   ├── cast.sh           # DLNA casting, volume, CCTV
+│   │   ├── dial.sh           # YouTube, Netflix via DIAL
+│   │   └── device.md         # Instructions for Claude (auto-included)
+│
+├── config.json                # Your device IPs, MACs, network (gitignored)
+├── config.example.json        # Template
+├── CLAUDE.md                  # Your preferences + learnings (gitignored)
+├── CLAUDE.md.example          # Template
+├── STATE.md                   # Device state (gitignored)
+└── README.md
+```
+
 ## How it works
 
 1. You speak a command to Alexa
@@ -29,23 +61,13 @@ While Claude is processing, you hear a beep sound so you know it's working.
 
 ## Architecture
 
-- **Poller** (`poller.js`) — Connects to Alexa via `alexa-remote2`, pulls voice history, filters failed commands
-- **Watcher** (`watch.sh`) — Detects new failed commands, handles deduplication, spawns Claude sessions
+- **Poller** (`core/poller.js`) — Connects to Alexa via `alexa-remote2`, pulls voice history, filters failed commands
+- **Watcher** (`core/watch.sh`) — Detects new failed commands, handles deduplication, spawns Claude sessions
 - **Claude sessions** — One Haiku session per command, reads `CLAUDE.md` for context, executes via bash
-- **LG TV control** (`lg_tv.js`) — Direct WebSocket (SSAP) control: power, volume, apps, screenshots
-- **Alexa control** (`alexa_control/`) — Speak, volume, text commands, announcements
-- **CCTV streaming** (`cctv_stream.sh`) — Live camera feed on TV: DVR (RTSP) → ffmpeg (HLS) → TV browser
-
-## Supported devices
-
-| Device | Protocol | What it can do |
-|--------|----------|----------------|
-| **LG WebOS TV** | WebSocket (SSAP) | Power on/off, volume, launch apps (YouTube, Netflix, Spotify), screenshots |
-| **Alexa Echo Dot** | alexa-remote2 | Speak, play music, text commands, announcements |
-| **CP Plus DVR** | RTSP → HLS | Live camera feed on TV, snapshots, motion detection |
-| **Smart Lights** | — | Planned |
-
-> **CCTV on TV** — Say "show camera on TV" and it spins up a live feed: DVR → ffmpeg (HLS) → fullscreen TV browser. Auto-stops when you switch away.
+- **LG TV control** (`devices/lg-webos-tv/lg_tv.js`) — Direct WebSocket (SSAP) control: power, volume, apps, screenshots
+- **Alexa control** (`core/alexa/`) — Speak, volume, text commands, announcements
+- **CCTV streaming** (`devices/cpplus-dvr/stream.sh`) — Live camera feed on TV: DVR (RTSP) → ffmpeg (HLS) → TV browser
+- **Jio STB** (`devices/jio-stb/`) — DLNA casting, YouTube/Netflix via DIAL
 
 ## Setup
 
@@ -101,32 +123,17 @@ nohup bash core/watch.sh > /dev/null 2>&1 &
 
 Now speak to Alexa. If she can't handle it, Claude will.
 
-## File structure
+## Supported devices
 
-```
-├── core/
-│   ├── poller.js             # Polls Alexa voice history, filters failures
-│   ├── watch.sh              # Watches for commands, spawns Claude, auto-loads device docs
-│   └── alexa/                # Alexa voice interface
-│       ├── auth.js           # Authentication (generates cookie_data.json)
-│       └── control.js        # speak, announce, textcommand, volume
-│
-├── devices/                   # Plug-and-play device integrations
-│   ├── lg-webos-tv/
-│   │   ├── lg_tv.js          # WebSocket (SSAP) control
-│   │   └── device.md         # Instructions for Claude (auto-included)
-│   ├── cpplus-dvr/
-│   │   ├── stream.sh         # RTSP → HLS → TV browser
-│   │   ├── player.html       # Fullscreen video player
-│   │   └── device.md         # Instructions for Claude (auto-included)
-│
-├── config.json                # Your device IPs, MACs, network (gitignored)
-├── config.example.json        # Template
-├── CLAUDE.md                  # Your preferences + learnings (gitignored)
-├── CLAUDE.md.example          # Template
-├── STATE.md                   # Device state (gitignored)
-└── README.md
-```
+| Device | Protocol | What it can do |
+|--------|----------|----------------|
+| **LG WebOS TV** | WebSocket (SSAP) | Power on/off, volume, launch apps (YouTube, Netflix, Spotify), screenshots, screen on/off |
+| **Alexa Echo Dot** | alexa-remote2 | Speak, play music, text commands, announcements |
+| **CP Plus DVR** | RTSP + HTTP | Live camera feed on TV, snapshots, record clips, motion detection |
+| **Jio Set Top Box** | DLNA + DIAL | Cast media, YouTube, Netflix, volume, CCTV streaming |
+| **Smart Lights** | — | Planned |
+
+> **CCTV on TV** — Say "show camera on TV" and it spins up a live feed: DVR → ffmpeg (HLS) → fullscreen TV browser. Auto-stops when you switch away.
 
 ## Adding new devices
 
