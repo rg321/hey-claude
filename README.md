@@ -2,8 +2,6 @@
 
 📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
 
-📺 *"switch on tv and then project cctv on it"* — Sent Wake-on-LAN, waited for boot, launched camera feed
-
 😂 *"mainu ek punjabi chutkula suna de yaar"* — Told a joke. In Punjabi.
 
 # hey-claude
