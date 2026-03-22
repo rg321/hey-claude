@@ -2,6 +2,16 @@
 
 **When Alexa can't answer, Claude takes over.**
 
+> *"tv pe spotify chalaao aur kuchh badhiya duniya gaane bajaa do"* — Opened Spotify on TV and played world music
+>
+> *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
+>
+> *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Explained the festival in under 350 characters
+>
+> *"switch on tv and then project cctv on it"* — Sent Wake-on-LAN, waited for boot, launched camera feed
+>
+> *"mainu ek punjabi chutkula suna de yaar"* — Told a joke. In Punjabi.
+
 A lightweight AI home assistant that catches failed Alexa commands, routes them to Claude, and executes them — controlling your TV, speakers, cameras, and more.
 
 ![Architecture](architecture.png)
