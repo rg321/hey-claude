@@ -1,4 +1,4 @@
-🪔 *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Explained the festival in under 350 characters
+🪔 *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Alexa had no clue. Claude explained the festival.
 
 📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
 
