@@ -60,7 +60,7 @@ while true; do
       # Wait for Alexa to finish speaking her failure response (~20 chars/sec)
       if [ -n "$ALEXA_RESP" ] && [ "$ALEXA_RESP" != "" ]; then
         RESP_LEN=${#ALEXA_RESP}
-        WAIT_SECS=$(( (RESP_LEN / 20) + 1 ))
+        WAIT_SECS=$(( RESP_LEN / 25 ))
         echo "[$(date)] Waiting ${WAIT_SECS}s for Alexa to finish (${RESP_LEN} chars)" >> "$LOG_FILE"
         sleep "$WAIT_SECS"
       fi
