@@ -1,5 +1,3 @@
-🎵 *"tv pe spotify chalaao aur kuchh badhiya duniya gaane bajaa do"* — Opened Spotify on TV and played world music
-
 📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
 
 🪔 *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Explained the festival in under 350 characters
