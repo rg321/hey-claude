@@ -77,6 +77,14 @@ While Claude is processing, you hear a beep sound so you know it's working.
 └── README.md
 ```
 
+## Adding new devices
+
+1. Create a folder under `devices/` (e.g. `devices/philips-hue/`)
+2. Add your control script (e.g. `index.js` or `control.sh`)
+3. Write a `device.md` describing the commands Claude can use
+4. Add device config to `config.json`
+5. Done — `watch.sh` auto-includes your `device.md` in every Claude session
+
 ## Setup
 
 ### Prerequisites
@@ -142,14 +150,6 @@ Now speak to Alexa. If she can't handle it, Claude will.
 | **Smart Lights** | — | Planned |
 
 > **CCTV on TV** — Say "show camera on TV" and it spins up a live feed: DVR → ffmpeg (HLS) → fullscreen TV browser. Auto-stops when you switch away.
-
-## Adding new devices
-
-1. Create a folder under `devices/` (e.g. `devices/philips-hue/`)
-2. Add your control script (e.g. `index.js` or `control.sh`)
-3. Write a `device.md` describing the commands Claude can use
-4. Add device config to `config.json`
-5. Done — `watch.sh` auto-includes your `device.md` in every Claude session
 
 ## Contributing
 
