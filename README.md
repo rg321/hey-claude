@@ -1,6 +1,6 @@
-📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
-
 🪔 *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Explained the festival in under 350 characters
+
+📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
 
 📺 *"switch on tv and then project cctv on it"* — Sent Wake-on-LAN, waited for boot, launched camera feed
 
