@@ -24,6 +24,27 @@ A lightweight AI home assistant that catches failed Alexa commands, routes them 
 - **Dynamic response delay** — Waits for Alexa to finish speaking (~20 chars/sec) before Claude responds
 - **Processing beeps** — Audio feedback while Claude is working so you know it's alive
 
+## How it works
+
+1. You speak a command to Alexa
+2. Alexa can't handle it ("Sorry, I don't know that")
+3. A **poller** watches Alexa's voice history every 2s and catches the failure
+4. A **watcher** (100ms polling) detects the new command and spawns a **Claude Haiku** session
+5. Claude understands the intent, executes the action (TV on/off, launch apps, play music, etc.)
+6. The response is spoken back through Alexa in a male voice (Matthew via SSML)
+
+While Claude is processing, you hear a beep sound so you know it's working.
+
+## Architecture
+
+- **Poller** (`core/poller.js`) — Connects to Alexa via `alexa-remote2`, pulls voice history, filters failed commands
+- **Watcher** (`core/watch.sh`) — Detects new failed commands, handles deduplication, spawns Claude sessions
+- **Claude sessions** — One Haiku session per command, reads `CLAUDE.md` for context, executes via bash
+- **LG TV control** (`devices/lg-webos-tv/lg_tv.js`) — Direct WebSocket (SSAP) control: power, volume, apps, screenshots
+- **Alexa control** (`core/alexa/`) — Speak, volume, text commands, announcements
+- **CCTV streaming** (`devices/cpplus-dvr/stream.sh`) — Live camera feed on TV: DVR (RTSP) → ffmpeg (HLS) → TV browser
+- **Jio STB** (`devices/jio-stb/`) — DLNA casting, YouTube/Netflix via DIAL
+
 ## File structure
 
 ```
@@ -55,27 +76,6 @@ A lightweight AI home assistant that catches failed Alexa commands, routes them 
 ├── STATE.md                   # Device state (gitignored)
 └── README.md
 ```
-
-## How it works
-
-1. You speak a command to Alexa
-2. Alexa can't handle it ("Sorry, I don't know that")
-3. A **poller** watches Alexa's voice history every 2s and catches the failure
-4. A **watcher** (100ms polling) detects the new command and spawns a **Claude Haiku** session
-5. Claude understands the intent, executes the action (TV on/off, launch apps, play music, etc.)
-6. The response is spoken back through Alexa in a male voice (Matthew via SSML)
-
-While Claude is processing, you hear a beep sound so you know it's working.
-
-## Architecture
-
-- **Poller** (`core/poller.js`) — Connects to Alexa via `alexa-remote2`, pulls voice history, filters failed commands
-- **Watcher** (`core/watch.sh`) — Detects new failed commands, handles deduplication, spawns Claude sessions
-- **Claude sessions** — One Haiku session per command, reads `CLAUDE.md` for context, executes via bash
-- **LG TV control** (`devices/lg-webos-tv/lg_tv.js`) — Direct WebSocket (SSAP) control: power, volume, apps, screenshots
-- **Alexa control** (`core/alexa/`) — Speak, volume, text commands, announcements
-- **CCTV streaming** (`devices/cpplus-dvr/stream.sh`) — Live camera feed on TV: DVR (RTSP) → ffmpeg (HLS) → TV browser
-- **Jio STB** (`devices/jio-stb/`) — DLNA casting, YouTube/Netflix via DIAL
 
 ## Setup
 
