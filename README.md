@@ -1,8 +1,8 @@
 🪔 *"navratri shuru ho rahe hain, mujhe iska matlab batao"* — Alexa had no clue. Claude explained the festival.
 
-📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
+📹 *"mummy ke tv pe cctv chalaa do, pahle usko on kar lena"* — Woke up TV, started camera stream, cast it. All in one go.
 
-📺 *"mummy ke tv pe cctv chalaa do, pahle usko on kar lena"* — Woke up TV via LAN, started camera stream, cast it
+📺 *"tv pe netflix chalaao aur koee badhiya movie play karo"* — Powered on TV, launched Netflix, and confirmed.
 
 😂 *"mainu ek punjabi chutkula suna de yaar"* — Told a joke. In Punjabi.
 
