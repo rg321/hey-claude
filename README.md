@@ -2,6 +2,10 @@
 
 📹 *"project my cctv on my dad's tv"* — Started RTSP stream, transcoded to HLS, cast to Jio STB via DLNA
 
+📺 *"mummy ke tv pe cctv chalaa do, pahle usko on kar lena"* — Woke up TV via LAN, started camera stream, cast it
+
+🎵 *"bg"* — Knew that means "play background music on Spotify". One word. Done.
+
 😂 *"mainu ek punjabi chutkula suna de yaar"* — Told a joke. In Punjabi.
 
 # hey-claude
