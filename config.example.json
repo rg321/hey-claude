@@ -6,7 +6,9 @@
   },
   "alexa": {
     "deviceName": "Your Echo Dot",
-    "ip": "YOUR_ECHO_IP"
+    "ip": "YOUR_ECHO_IP",
+    "amazonDomain": "amazon.com",
+    "alexaServiceHost": "pitangui.amazon.com"
   },
   "dvr": {
     "ip": "YOUR_DVR_IP",

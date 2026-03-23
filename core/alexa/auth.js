@@ -4,6 +4,9 @@ const path = require('path');
 
 const config = JSON.parse(fs.readFileSync(path.join(__dirname, '..', '..', 'config.json'), 'utf8'));
 const LAPTOP_IP = config.network.laptop;
+const AMAZON_DOMAIN = config.alexa.amazonDomain || 'amazon.com';
+const ALEXA_SERVICE_HOST = config.alexa.alexaServiceHost || 'pitangui.amazon.com';
+const PROXY_PORT = 3456;
 const COOKIE_FILE = path.join(__dirname, 'cookie_data.json');
 const alexa = new Alexa();
 
@@ -33,35 +36,39 @@ const initOptions = {
     cookie: savedCookie ? savedCookie.cookie : undefined,
     macDms: savedCookie ? savedCookie.macDms : undefined,
     formerRegistrationData: savedCookie ? savedCookie.cookie : undefined,
+    setupProxy: !savedCookie,
     proxyOnly: !savedCookie,
-    proxyOwnIp: LAPTOP_IP,
-    proxyPort: 3001,
+    proxyOwnIp: 'localhost',
+    proxyPort: PROXY_PORT,
+    proxyListenBind: '0.0.0.0',
     proxyLogLevel: 'info',
+    amazonPageProxyLanguage: 'en_US',
     bluetooth: false,
     useWsMqtt: false,
-    alexaServiceHost: 'alexa.amazon.in',
-    amazonPage: 'amazon.in',
+    alexaServiceHost: ALEXA_SERVICE_HOST,
+    amazonPage: AMAZON_DOMAIN,
     logger: console.log,
     cookieRefreshInterval: 7 * 24 * 60 * 1000,
 };
 
 console.log('Initializing Alexa Remote...');
+console.log(`Amazon domain: ${AMAZON_DOMAIN}`);
 if (!savedCookie) {
-    console.log('\n>>> No saved cookie. Will open proxy for authentication.');
-    console.log(`>>> Open http://${LAPTOP_IP}:3001 in your browser and log in to Amazon.\n`);
+    console.log(`\n>>> No saved cookie. Will open proxy for authentication.`);
+    console.log(`>>> Open http://${LAPTOP_IP}:${PROXY_PORT} in your browser and log in to Amazon.`);
+    console.log(`>>> Or try http://localhost:${PROXY_PORT} if the above doesn't work.\n`);
 }
 
 alexa.init(initOptions, function (err) {
     if (err) {
-        // When proxyOnly=true, init returns an "error" telling user to open browser
-        // The proxy server is still running - don't exit
         if (err.message && err.message.includes('Please open')) {
             console.log('\n========================================');
             console.log('PROXY IS RUNNING!');
-            console.log(`Open http://${LAPTOP_IP}:3001 in your browser`);
-            console.log('Log in to your Amazon account (amazon.in)');
+            console.log(`Open http://${LAPTOP_IP}:${PROXY_PORT} in your browser`);
+            console.log(`Or try http://localhost:${PROXY_PORT}`);
+            console.log(`Log in to your Amazon account (${AMAZON_DOMAIN})`);
             console.log('========================================\n');
-            return; // Keep process alive, proxy is running
+            return;
         }
         console.error('Init error:', err.message || err);
         process.exit(1);
@@ -76,7 +83,6 @@ alexa.init(initOptions, function (err) {
         console.log(`  - ${dev.accountName} (${dev.deviceFamily}) [${serial}]`);
     }
 
-    // Print all devices with details
     for (const serial of Object.keys(devices)) {
         const dev = alexa.find(serial);
         console.log(`\n--- ${dev.accountName} ---`);
