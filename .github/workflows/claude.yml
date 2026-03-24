@@ -13,7 +13,6 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-      id-token: write
     steps:
       - uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -23,4 +22,4 @@ jobs:
 
       - uses: anthropics/claude-code-action@v1
         with:
-          use_bedrock: true
+          use_bedrock: "true"
