@@ -13,12 +13,8 @@ jobs:
       contents: write
       pull-requests: write
       issues: write
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_REGION: us-west-2
     steps:
       - uses: anthropics/claude-code-action@v1
         with:
-          use_bedrock: "true"
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           github_token: ${{ github.token }}
