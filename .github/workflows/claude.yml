@@ -21,3 +21,4 @@ jobs:
       - uses: anthropics/claude-code-action@v1
         with:
           use_bedrock: "true"
+          github_token: ${{ github.token }}
