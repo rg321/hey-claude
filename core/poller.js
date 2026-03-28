@@ -7,6 +7,7 @@ const alexa = new Alexa();
 const saved = JSON.parse(fs.readFileSync(path.join(__dirname, 'alexa', 'cookie_data.json'), 'utf8'));
 const QUEUE_FILE = path.join(ROOT_DIR, 'failed_alexa_conversations.jsonl');
 const LOG_FILE = path.join(ROOT_DIR, 'all_alexa_conversations.jsonl');
+const MUSIC_STATE_FILE = path.join(ROOT_DIR, '.music_playing');
 
 let lastTimestamp = Date.now();
 
@@ -40,6 +41,7 @@ alexa.init({
                 // If Alexa gave a real response (not a failure/deflection), skip Claude
                 const resp = (r.alexaResponse || '').trim();
                 const respLower = resp.toLowerCase();
+                const userLower = user.toLowerCase();
                 const failurePatterns = [
                     "sorry", "i'm not sure", "i'm not quite sure",
                     "i don't know", "i don't understand", "i don't have",
@@ -61,6 +63,16 @@ alexa.init({
                 ];
                 const alexaTried = alexaTriedPatterns.some(p => respLower.includes(p));
                 const isFailure = !resp || failurePatterns.some(p => respLower.includes(p));
+                // Track music playing state
+                const musicStartPatterns = ["playing", "shuffling", "from spotify", "from amazon music", "resuming"];
+                const musicStopPatterns = ["stopped", "music stopped", "paused"];
+                if (resp && musicStartPatterns.some(p => respLower.includes(p))) {
+                    fs.writeFileSync(MUSIC_STATE_FILE, Date.now().toString());
+                }
+                if (userLower && (userLower === 'stop' || userLower === 'pause' || musicStopPatterns.some(p => respLower.includes(p)))) {
+                    try { fs.unlinkSync(MUSIC_STATE_FILE); } catch {}
+                }
+
                 if (alexaTried || (resp && !isFailure)) {
                     console.log(`[${logEntry.time}] ALEXA> ${user} → ${resp.substring(0, 60)}`);
                     continue;

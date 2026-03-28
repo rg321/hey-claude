@@ -10,6 +10,7 @@ LOG_FILE="$ROOT_DIR/watch.log"
 LAST_COUNT_FILE="$ROOT_DIR/.last_line_count"
 RECENT_CMDS_FILE="$ROOT_DIR/.recent_commands"
 ALEXA_DIR="$ROOT_DIR/core/alexa"
+MUSIC_STATE_FILE="$ROOT_DIR/.music_playing"
 DEDUP_WINDOW=60  # seconds — ignore duplicate commands within this window
 
 # Initialize last count
@@ -65,8 +66,17 @@ while true; do
         sleep "$WAIT_SECS"
       fi
 
-      # Acknowledgment via Alexa in Matthew's voice
-      cd "$ALEXA_DIR" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
+      # Check if music is playing — don't interrupt it
+      MUSIC_PLAYING=false
+      if [ -f "$MUSIC_STATE_FILE" ]; then
+        MUSIC_PLAYING=true
+        echo "[$(date)] Music playing — skipping acknowledgment and beeps" >> "$LOG_FILE"
+      fi
+
+      # Acknowledgment via Alexa (skip if music is playing)
+      if ! $MUSIC_PLAYING; then
+        cd "$ALEXA_DIR" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
+      fi
 
       # Get recent conversation context (last 5 lines from all conversations)
       RECENT=$(tail -5 "$ALL_FILE" 2>/dev/null | jq -r '.command' 2>/dev/null | tr '\n' ', ')
@@ -101,22 +111,31 @@ Execute this command now. After executing:
       cd "$ROOT_DIR" && claude -p "$PROMPT" --model haiku --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
       CLAUDE_PID=$!
 
-      # Beep in background
-      (
-        while true; do
-          sleep 0.3
-          cd "$ALEXA_DIR" && node control.js speak '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>' > /dev/null 2>&1 && echo "[$(date)] beep" >> "$LOG_FILE"
-        done
-      ) &
-      BEEP_PID=$!
+      # Beep in background (skip if music is playing)
+      BEEP_PID=""
+      if ! $MUSIC_PLAYING; then
+        (
+          while true; do
+            sleep 0.3
+            cd "$ALEXA_DIR" && node control.js speak '<audio src="soundbank://soundlibrary/computers/beeps_tones/beeps_tones_08"/>' > /dev/null 2>&1 && echo "[$(date)] beep" >> "$LOG_FILE"
+          done
+        ) &
+        BEEP_PID=$!
+      fi
       wait "$CLAUDE_PID"
 
-      # Kill beep loop, its children (node processes), and flush Alexa audio queue
-      pkill -P "$BEEP_PID" 2>/dev/null
-      kill "$BEEP_PID" 2>/dev/null
-      wait "$BEEP_PID" 2>/dev/null
-      # Stop any audio still playing/queued on Alexa
-      cd "$ALEXA_DIR" && node control.js stop > /dev/null 2>&1
+      # Kill beep loop if it was started
+      if [ -n "$BEEP_PID" ]; then
+        pkill -P "$BEEP_PID" 2>/dev/null
+        kill "$BEEP_PID" 2>/dev/null
+        wait "$BEEP_PID" 2>/dev/null
+        cd "$ALEXA_DIR" && node control.js stop > /dev/null 2>&1
+      fi
+
+      # If music was playing, clear the flag (Claude's action likely interrupted it)
+      if $MUSIC_PLAYING; then
+        rm -f "$MUSIC_STATE_FILE"
+      fi
 
       # Speak response
       if [ -f "$RESPONSE_FILE" ]; then
