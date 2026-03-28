@@ -73,10 +73,8 @@ while true; do
         echo "[$(date)] Music playing — skipping acknowledgment and beeps" >> "$LOG_FILE"
       fi
 
-      # Acknowledgment via Alexa (skip if music is playing)
-      if ! $MUSIC_PLAYING; then
-        cd "$ALEXA_DIR" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
-      fi
+      # Acknowledgment via Alexa (always — so user knows it was picked up)
+      cd "$ALEXA_DIR" && node control.js speak '<voice name="Matthew">Let me give it a shot</voice>' >> "$LOG_FILE" 2>&1
 
       # Get recent conversation context (last 5 lines from all conversations)
       RECENT=$(tail -5 "$ALL_FILE" 2>/dev/null | jq -r '.command' 2>/dev/null | tr '\n' ', ')
