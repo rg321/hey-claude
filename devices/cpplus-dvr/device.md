@@ -1,5 +1,6 @@
 ### CP Plus DVR (CCTV)
 Shows live camera feed on a TV.
+**"c.c.tv", "cctv", "camera", "security camera"** all mean the same thing — the CCTV camera feed. NOT a YouTube video or TV show.
 
 #### Which TV?
 - **Mom's TV / my TV / just "TV"** → `bash devices/cpplus-dvr/stream.sh cast`

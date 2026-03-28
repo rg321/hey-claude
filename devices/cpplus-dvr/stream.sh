@@ -19,7 +19,8 @@ DVR_MAC=$(jq -r '.dvr.mac // ""' "$CONFIG")
 DVR_USER=$(jq -r '.dvr.user' "$CONFIG")
 DVR_PASS=$(jq -r '.dvr.pass' "$CONFIG")
 TV_IP=$(jq -r '.tv.ip' "$CONFIG")
-LAPTOP_IP=$(jq -r '.network.laptop' "$CONFIG")
+# Auto-detect laptop IP instead of relying on config (handles DHCP changes)
+LAPTOP_IP=$(ipconfig getifaddr en0 2>/dev/null || jq -r '.network.laptop' "$CONFIG")
 HTTP_PORT=8899
 GRACE_PERIOD=1800  # 30 minutes in seconds
 
@@ -136,20 +137,20 @@ stop_stream() {
 
   # Kill watchdog
   if [ -f "$WATCHDOG_PID_FILE" ]; then
-    kill "$(cat "$WATCHDOG_PID_FILE")" 2>/dev/null
+    kill "$(cat "$WATCHDOG_PID_FILE")" 2>/dev/null || true
     rm -f "$WATCHDOG_PID_FILE"
   fi
 
   # Kill ffmpeg
   if [ -f "$PID_FILE" ]; then
-    kill "$(cat "$PID_FILE")" 2>/dev/null
+    kill "$(cat "$PID_FILE")" 2>/dev/null || true
     rm -f "$PID_FILE"
     stopped=true
   fi
 
   # Kill HTTP server
   if [ -f "$HTTP_PID_FILE" ]; then
-    kill "$(cat "$HTTP_PID_FILE")" 2>/dev/null
+    kill "$(cat "$HTTP_PID_FILE")" 2>/dev/null || true
     rm -f "$HTTP_PID_FILE"
   fi
   # Kill any orphan process on the HTTP port

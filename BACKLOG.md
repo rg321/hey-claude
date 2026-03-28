@@ -7,6 +7,7 @@ Open features and improvements. PRs welcome!
 - [ ] **Stream responses** — Instead of waiting for Claude to finish, stream partial responses to Alexa as they're generated
 
 ## Voice & UX
+- [ ] **Don't interrupt music** — Detect when Alexa is playing music before sending speak/beep commands. If music is playing, either skip the acknowledgment and beeps entirely, or lower volume → speak → restore volume. Currently "Let me give it a shot" and processing beeps hard-stop any playing music.
 - [ ] **Persistent Alexa connection** — Keep a long-running process with a persistent connection to Alexa API instead of cold-starting `node control.js` for every speak/beep (~2-3s overhead per call)
 - [ ] **Customizable voice** — Make the SSML voice (currently Matthew) configurable via config.json
 - [ ] **Punjabi/Hindi TTS** — Support regional language responses (currently English only, even for Hindi/Punjabi commands)

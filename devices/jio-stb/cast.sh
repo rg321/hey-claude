@@ -96,7 +96,7 @@ case "$CMD" in
     # Start CCTV stream if not already running
     bash "$ROOT_DIR/devices/cpplus-dvr/stream.sh" start "$CHANNEL" > /dev/null 2>&1
     sleep 3
-    LAPTOP_IP=$(jq -r '.network.laptop' "$CONFIG")
+    LAPTOP_IP=$(ipconfig getifaddr en0 2>/dev/null || jq -r '.network.laptop' "$CONFIG")
     cast_url "http://${LAPTOP_IP}:8899/stream.m3u8" "CCTV Camera $CHANNEL"
     ;;
 
