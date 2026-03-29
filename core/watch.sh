@@ -108,6 +108,9 @@ Execute this command now. After executing:
       # Spawn claude in background, beep while processing
       cd "$ROOT_DIR" && claude -p "$PROMPT" --model haiku --dangerously-skip-permissions >> "$LOG_FILE" 2>&1 &
       CLAUDE_PID=$!
+      # Kill Claude if it runs longer than 60s (prevents stuck sessions blocking watcher)
+      ( sleep 60; kill "$CLAUDE_PID" 2>/dev/null; echo "[$(date)] TIMEOUT: killed stuck Claude session for: $COMMAND" >> "$LOG_FILE" ) &
+      TIMEOUT_PID=$!
 
       # Beep in background (skip if music is playing)
       BEEP_PID=""
@@ -121,6 +124,7 @@ Execute this command now. After executing:
         BEEP_PID=$!
       fi
       wait "$CLAUDE_PID"
+      kill "$TIMEOUT_PID" 2>/dev/null  # Cancel timeout if Claude finished normally
 
       # Kill beep loop if it was started
       if [ -n "$BEEP_PID" ]; then
