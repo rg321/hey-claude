@@ -288,7 +288,17 @@ cast_to_tv() {
   " 2>&1
 
   log "Cast to TV: $HLS_URL"
-  echo "Camera feed cast to TV"
+
+  # Verify stream is actually working via snapshot
+  sleep 5
+  SNAP=$(bash "$HOME_DIR/devices/cpplus-dvr/dvr.sh" snapshot 2>&1)
+  if echo "$SNAP" | grep -q "bytes"; then
+    log "Stream verified: $SNAP"
+    echo "Camera feed cast to TV (verified)"
+  else
+    log "WARNING: snapshot verification failed — $SNAP"
+    echo "Camera feed cast to TV (WARNING: could not verify feed)"
+  fi
 
   # Start watchdog
   start_watchdog

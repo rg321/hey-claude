@@ -26,3 +26,4 @@ Shows live camera feed on a TV.
 - Auto-discovers DVR IP by MAC address (handles DHCP changes)
 - Default: main stream (1080p)
 - DVR config in config.json under `dvr`
+- After casting CCTV, always run `bash devices/cpplus-dvr/dvr.sh snapshot` to verify the DVR is reachable. Only confirm success if snapshot returns a valid file size.
