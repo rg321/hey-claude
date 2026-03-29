@@ -64,9 +64,11 @@ alexa.init({
                 const alexaTried = alexaTriedPatterns.some(p => respLower.includes(p));
                 const isFailure = !resp || failurePatterns.some(p => respLower.includes(p));
                 // Track music playing state
-                const musicStartPatterns = ["playing", "shuffling", "from spotify", "from amazon music", "resuming", "here's spotify", "ok here's", "this is ", "on spotify", "on amazon music"];
+                // Any response mentioning music service = music is playing (unless it's a failure)
+                const musicStartPatterns = ["spotify", "amazon music", "apple music", "shuffling", "resuming"];
                 const musicStopPatterns = ["stopped", "music stopped", "paused"];
-                if (resp && musicStartPatterns.some(p => respLower.includes(p))) {
+                const isMusicFailure = alexaTried || failurePatterns.some(p => respLower.includes(p));
+                if (resp && !isMusicFailure && musicStartPatterns.some(p => respLower.includes(p))) {
                     fs.writeFileSync(MUSIC_STATE_FILE, Date.now().toString());
                 }
                 if (userLower && (userLower === 'stop' || userLower === 'pause' || musicStopPatterns.some(p => respLower.includes(p)))) {
