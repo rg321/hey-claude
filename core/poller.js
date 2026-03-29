@@ -64,7 +64,7 @@ alexa.init({
                 const alexaTried = alexaTriedPatterns.some(p => respLower.includes(p));
                 const isFailure = !resp || failurePatterns.some(p => respLower.includes(p));
                 // Track music playing state
-                const musicStartPatterns = ["playing", "shuffling", "from spotify", "from amazon music", "resuming"];
+                const musicStartPatterns = ["playing", "shuffling", "from spotify", "from amazon music", "resuming", "here's spotify", "ok here's", "this is ", "on spotify", "on amazon music"];
                 const musicStopPatterns = ["stopped", "music stopped", "paused"];
                 if (resp && musicStartPatterns.some(p => respLower.includes(p))) {
                     fs.writeFileSync(MUSIC_STATE_FILE, Date.now().toString());
